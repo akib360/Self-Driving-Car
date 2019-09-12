@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+#[5th function] finally coordinate making
 def make_coordinates(image, line_parameters):
     slope, intercept = line_parameters
     y1 = image.shape[0]
@@ -9,6 +10,7 @@ def make_coordinates(image, line_parameters):
     x2 = int((y2-intercept)/slope)
     return np.array([x1, y1, x2, y2])
 
+#[4th function] for averageing our lane lines
 def average_slope_intercept(image, lines):
     left_fit = []
     right_fit = []
@@ -27,12 +29,14 @@ def average_slope_intercept(image, lines):
     right_line = make_coordinates(image, right_fit_average)
     return np.array([left_line, right_line])
 
+#[1st function] for canny edge detection algorithm
 def canny(image):
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
     canny = cv2.Canny(image, 50, 150)
     return canny
 
+#[3rd function] for displaying our lane lines
 def display_lines(image, lines):
     line_image = np.zeros_like(image)
     if lines is not None:
@@ -40,6 +44,7 @@ def display_lines(image, lines):
             cv2.line(line_image, (x1, y1), (x2, y2), (255,0,0), 10)
     return line_image
 
+#[2nd function] for region of interest
 def region_of_interest(image):
     height = image.shape[0]
     polygons = np.array([
@@ -50,12 +55,16 @@ def region_of_interest(image):
     masked_image = cv2.bitwise_and(image, mask)
     return masked_image
 
+#for picture
 """
 image = cv2.imread('test_image.jpg')
 lane_image = np.copy(image)
 canny_image = canny(lane_image)
 cropped_image = region_of_interest(canny_image)
+
+#for hough transform
 lines = cv2.HoughLinesP(cropped_image, 2, np.pi/180, 100, np.array([]), minLineLength=40, maxLineGap=5)
+#for average line
 averaged_lines = average_slope_intercept(lane_image, lines)
 line_image = display_lines(lane_image, averaged_lines)
 combo_image = cv2.addWeighted(lane_image, 0.8, line_image, 1, 1)
@@ -63,6 +72,7 @@ cv2.imshow('result', combo_image)
 cv2.waitKey(0)
 """
 
+#for video
 cap = cv2.VideoCapture("test2.mp4")
 cap.set(3,320)
 cap.set(4,240)
@@ -71,7 +81,9 @@ while (cap.isOpened()):
     _, frame = cap.read()
     canny_image = canny(frame)
     cropped_image = region_of_interest(canny_image)
+    #for hough transform
     lines = cv2.HoughLinesP(cropped_image, 2, np.pi/180, 100, np.array([]), minLineLength=40, maxLineGap=5)
+    #for average line
     averaged_lines = average_slope_intercept(frame, lines)
     line_image = display_lines(frame, averaged_lines)
     combo_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
